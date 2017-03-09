@@ -39,7 +39,7 @@ De ce fait, nous créons un "Security Group" traditionnel, nommé
 
 ![RDS creation step-by-step](assets/images/01-rds_creation_step_3.png)
 
-Maintenant que le "Security Group" a été créé, nous allons créer une nouvelle
+Maintenant que le "Security Group" a été créé, nous allons générer une nouvelle
 instance RDS. Pour ce faire il faut retourner dans le tableau de bord prévu à
 cet effet (cf. plus haut), ce rendre dans le sous-menu "Instance" et cliquer
 sur "Launch DB Instance".
@@ -53,6 +53,8 @@ souhaitons utiliser une instance basée sur `MySQL`.
 
 Comme cette procédure est expérimentale, nous ne choisissons pas de mettre en
 production cette instance et nous utilisons à la place l'offre "Dev/Test".
+L'offre "Production" permet notament de meilleures performances et un taux de
+disponibilité plus élevé.
 
 ![RDS creation step-by-step](assets/images/01-rds_creation_step_6.png)
 
@@ -61,8 +63,9 @@ type, son identifiant et les crédentials liés à `MySQL`.
 
 ![RDS creation step-by-step](assets/images/01-rds_creation_step_7.png)
 
-À cet instant on choisis son "Security Group" et désactivons les sauvegardes
-automatiques.
+À cet instant, on choisi son "Security Group" et désactivons les sauvegardes
+automatiques. La désactivation des sauvegardes automatique se procède en
+spécifiant une fréquence de sauvegarde nulle.
 
 ![RDS creation step-by-step](assets/images/01-rds_creation_step_8.png)
 
@@ -121,7 +124,9 @@ ubuntu@ip-172-31-3-176:~$ sudo /etc/init.d/apache2 stop
 Pour reconfigurer `drupal7` nous utilisons l'utilitaire `dpkg-reconfigure`.
 `dpkg` est un système de gestion de paquets de bas niveau, utilisé dans les
 distributions dérivant de Debian. Par analogie, nous citons `rpm`, utilitaire
-similaire pour les distributions dérivant de Red Hat.
+similaire pour les distributions dérivant de Red Hat. Un utilisateur
+grand-publique utilise généralement `apt`, qui est une surcouche de `dpkg`, pour
+gérer ses paquets.
 
 ```
 ubuntu@ip-172-31-3-176:~$ sudo dpkg-reconfigure drupal7
@@ -130,8 +135,8 @@ ubuntu@ip-172-31-3-176:~$ sudo dpkg-reconfigure drupal7
 À présent, nous sommes invité à reconfigurer `drupal7` à l'aide d'une interface
 graphique minimale.
 
-Premièrement, on nous demande si nous voulons réinstallé la base de donnée. Nous
-confirmons ce choix, étant donné que c'est notre intention première.
+Premièrement, on nous demande si nous voulons réinstaller la base de donnée.
+Nous confirmons ce choix, étant donné que c'est notre intention première.
 
 ![Drupal 7 database reconfiguration step-by-step](assets/images/02-drupal7_reconfigure_step_1.png)
 
@@ -235,9 +240,9 @@ ubuntu@ip-172-31-3-176:~$ mysqldump --add-drop-table --user=drupal7 --password=<
 ## TÂCHE 3: CRÉATION D'UNE IMAGE VIRTUELLE PERSONNALISÉE
 
 Dans ce chapitre, nous allons créer une image virtuelle personnalisée basée sur
-l'instance contenant `drupal7`. Cette étape est nécessaire pour la redondance
-de l'application. Ainsi nous pourrons déployer plusieurs instances de
-l'application, dans différentes régions proposées par Amazon.
+l'instance EC2 contenant `drupal7`. Cette étape est nécessaire pour la
+redondance de l'application. Ainsi nous pourrons déployer plusieurs instances de
+l'application, dans différentes zones/régions proposées par Amazon.
 
 Premièrement, il faut se rendre dans le tableau de bord permettant la gestion
 des instances EC2. Après avoir sélectionné l'instance contenant l'application
@@ -263,7 +268,9 @@ catégorie "Images".
 ![Custom AMI creation step-by-step](assets/images/03-image_creation_step_4.png)
 
 Nous avons la confirmation que l'image a bien été créée. Notons tout de même que
-l'image est stocké dans la régions où elle a été créée.
+l'image est stocké dans la régions où elle a été créée ! Si nous désirons
+déployer une instance EC2 basée sur cette image, dans une autre région, il
+faudra impérativement copié l'image dans celle-çi.
 
 ## TÂCHE 4: CRÉATION D'UN LOAD BALANCER
 
@@ -272,21 +279,41 @@ Amazon (ELB). [[[[[Détail flemme]]]]]
 
 ![Load balancer creation step-by-step](assets/images/04-load_balancer_creation_step_1.png)
 
+Nous sommes invités à choisir le type de répartisseur de charge à utiliser. Ici,
+nous choisissons l'offre classique, adaptée à nos besoin.
+
 ![Load balancer creation step-by-step](assets/images/04-load_balancer_creation_step_2.png)
 
 Ici, nous spécifions le nom de notre load balancer, à savoir "franchini-Drupal".
 
 ![Load balancer creation step-by-step](assets/images/04-load_balancer_creation_step_3.png)
 
+Maintenant, nous lui attribuons un "Security Group". Nous choisissons de
+réutiliser "franchini-Drupal" bien qu'il soit un peu trop permissif.
+
 ![Load balancer creation step-by-step](assets/images/04-load_balancer_creation_step_4.png)
+
+Ensuite, nous devons configurer le "Health Check". Le répartisseur de charge
+envoit périodiquement des requêtes à ses noeuds afin de savoir si ils sont
+toujours "en vie". Nous considérons qu'un noeud est "en vie" si il répond, avec
+succès, 2 "Health Check" à 10 secondes d'interval. De plus, nous spécifions,
+arbitrairement le chemin d'accès du "Check" à `/drupal7/`.
 
 ![Load balancer creation step-by-step](assets/images/04-load_balancer_creation_step_5.png)
 
+Nous lui attachons pour premier noeud, notre instance EC2 contenant
+l'application web.
+
 ![Load balancer creation step-by-step](assets/images/04-load_balancer_creation_step_6.png)
+
+Nous confirmons nos choix et générons ainsi le répartisseur de charge.
 
 ![Load balancer creation step-by-step](assets/images/04-load_balancer_creation_step_7.png)
 
+Nous prenons en compte de son nom de domaine publique:
 http://franchini-drupal-1520229052.eu-central-1.elb.amazonaws.com/drupal7/
+
+![Load balancer creation step-by-step](assets/images/04-load_balancer_creation_step_8.png)
 
 ```
 172.31.25.19 - - [07/Mar/2017:22:36:34 +0000] "GET /drupal7/ HTTP/1.1" 200 9189 "-" "ELB-HealthChecker/1.0"
@@ -302,46 +329,14 @@ http://franchini-drupal-1520229052.eu-central-1.elb.amazonaws.com/drupal7/
 172.31.25.19 - - [07/Mar/2017:22:37:23 +0000] "GET /drupal7/ HTTP/1.1" 200 9189 "-" "ELB-HealthChecker/1.0"
 ```
 
+**Note:** Comme nous avons mis en fonction un répartisseur de charge, nous
+n'avons plus besoin d'utiliser une Elastic IP pour l'instance contenant
+l'application web. (Procédure non-détaillée)
+
 ## TÂCHE 5: LANCEMENT D'UNE SECONDE INSTANCE DEPUIS LA NOUVELLE IMAGE
 
 Dans ce chapitre, nous allons générer une seconde instance de l'application,
-dans une zone différente, à partir de l'image créée précédement.
-
-Premièrement nous constatons que nous pouvons pas, de base, générer une instance
-EC2 dans une région différente de celle où est situé notre AMI. Nous devons, de
-ce fait, copier l'image dans la région où nous souhaitons générer notre deuxième
-instance.
-
-![AMI copy step-by-step](assets/images/05-ami_move_step_0.png)
-
-Pour ce faire, il faut retourner dans le tableau de bord des AMIs, dans leur
-région d'origine. Ensuite, après avoir sélectionné l'image, dans le menu
-déroulant "Actions", il faut cliquer sur "Copy AMI".
-
-![AMI copy step-by-step](assets/images/05-ami_move_step_1.png)
-
-Alors s'ouvre une fenêtre pop-up nous demandant de spécifier la région de
-destination et ses caractéristiques. Nous choisisons de copier l'image dans
-la région de Tokyo.
-
-![AMI copy step-by-step](assets/images/05-ami_move_step_2.png)
-
-À présent, nous devons attendre quelques minutes pour ensuite constater la
-présence de la nouvelle image dans la région désirée.
-
-![AMI copy step-by-step](assets/images/05-ami_move_step_3.png)
-
-![AMI copy step-by-step](assets/images/05-ami_move_step_4.png)
-
-![Second instance creation step-by-step](assets/images/05-create_second_ec2_step_.png)
-
-![Second instance creation step-by-step](assets/images/05-create_second_ec2_step_.png)
-
-![Second instance creation step-by-step](assets/images/05-create_second_ec2_step_.png)
-
-![Second instance creation step-by-step](assets/images/05-create_second_ec2_step_.png)
-
-![Second instance creation step-by-step](assets/images/05-create_second_ec2_step_.png)
+dans une zone différente de la première, à partir de l'image créée précédement.
 
 ## TÂCHE 6: TEST DE L'APPLICATION DISTRIBUÉE
 
