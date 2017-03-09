@@ -316,17 +316,32 @@ http://franchini-drupal-1520229052.eu-central-1.elb.amazonaws.com/drupal7/
 ![Load balancer creation step-by-step](assets/images/04-load_balancer_creation_step_8.png)
 
 ```
-172.31.25.19 - - [07/Mar/2017:22:36:34 +0000] "GET /drupal7/ HTTP/1.1" 200 9189 "-" "ELB-HealthChecker/1.0"
-172.31.5.164 - - [07/Mar/2017:22:36:36 +0000] "GET /drupal7/ HTTP/1.1" 200 9189 "-" "ELB-HealthChecker/1.0"
-172.31.25.19 - - [07/Mar/2017:22:36:43 +0000] "GET /drupal7/ HTTP/1.1" 200 9189 "-" "ELB-HealthChecker/1.0"
-172.31.5.164 - - [07/Mar/2017:22:36:46 +0000] "GET /drupal7/ HTTP/1.1" 200 9189 "-" "ELB-HealthChecker/1.0"
-172.31.25.19 - - [07/Mar/2017:22:36:53 +0000] "GET /drupal7/ HTTP/1.1" 200 9189 "-" "ELB-HealthChecker/1.0"
-172.31.5.164 - - [07/Mar/2017:22:36:56 +0000] "GET /drupal7/ HTTP/1.1" 200 9189 "-" "ELB-HealthChecker/1.0"
-172.31.25.19 - - [07/Mar/2017:22:37:03 +0000] "GET /drupal7/ HTTP/1.1" 200 9189 "-" "ELB-HealthChecker/1.0"
-172.31.5.164 - - [07/Mar/2017:22:37:06 +0000] "GET /drupal7/ HTTP/1.1" 200 9189 "-" "ELB-HealthChecker/1.0"
-172.31.25.19 - - [07/Mar/2017:22:37:13 +0000] "GET /drupal7/ HTTP/1.1" 200 9189 "-" "ELB-HealthChecker/1.0"
-172.31.5.164 - - [07/Mar/2017:22:37:16 +0000] "GET /drupal7/ HTTP/1.1" 200 9189 "-" "ELB-HealthChecker/1.0"
-172.31.25.19 - - [07/Mar/2017:22:37:23 +0000] "GET /drupal7/ HTTP/1.1" 200 9189 "-" "ELB-HealthChecker/1.0"
+[crab1@unknown ~]$ nslookup franchini-drupal-1520229052.eu-central-1.elb.amazonaws.com
+Server:		130.125.1.111
+Address:	130.125.1.111#53
+
+Non-authoritative answer:
+Name:	franchini-drupal-1520229052.eu-central-1.elb.amazonaws.com
+Address: 35.157.254.178
+Name:	franchini-drupal-1520229052.eu-central-1.elb.amazonaws.com
+Address: 35.157.15.34
+```
+
+À présent, nous souhaitons observer les "Health Check" du répartisseur de charge
+en regardant les logs l'instance contenant l'application web.
+
+```
+ubuntu@ip-172-31-30-195:~$ tail /var/log/apache2/access.log
+172.31.9.229 - - [09/Mar/2017:13:43:42 +0000] "GET /drupal7/ HTTP/1.1" 200 9211 "-" "ELB-HealthChecker/1.0"
+172.31.5.164 - - [09/Mar/2017:13:43:52 +0000] "GET /drupal7/ HTTP/1.1" 200 9211 "-" "ELB-HealthChecker/1.0"
+172.31.26.187 - - [09/Mar/2017:13:43:52 +0000] "GET /drupal7/ HTTP/1.1" 200 9211 "-" "ELB-HealthChecker/1.0"
+172.31.9.229 - - [09/Mar/2017:13:43:52 +0000] "GET /drupal7/ HTTP/1.1" 200 9211 "-" "ELB-HealthChecker/1.0"
+172.31.5.164 - - [09/Mar/2017:13:44:02 +0000] "GET /drupal7/ HTTP/1.1" 200 9211 "-" "ELB-HealthChecker/1.0"
+172.31.26.187 - - [09/Mar/2017:13:44:02 +0000] "GET /drupal7/ HTTP/1.1" 200 9211 "-" "ELB-HealthChecker/1.0"
+172.31.9.229 - - [09/Mar/2017:13:44:02 +0000] "GET /drupal7/ HTTP/1.1" 200 9211 "-" "ELB-HealthChecker/1.0"
+172.31.5.164 - - [09/Mar/2017:13:44:12 +0000] "GET /drupal7/ HTTP/1.1" 200 9211 "-" "ELB-HealthChecker/1.0"
+172.31.26.187 - - [09/Mar/2017:13:44:12 +0000] "GET /drupal7/ HTTP/1.1" 200 9211 "-" "ELB-HealthChecker/1.0"
+172.31.9.229 - - [09/Mar/2017:13:44:12 +0000] "GET /drupal7/ HTTP/1.1" 200 9211 "-" "ELB-HealthChecker/1.0"
 ```
 
 **Note:** Comme nous avons mis en fonction un répartisseur de charge, nous
