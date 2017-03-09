@@ -262,7 +262,8 @@ catégorie "Images".
 
 ![Custom AMI creation step-by-step](assets/images/03-image_creation_step_4.png)
 
-Nous avons la confirmation que l'image a bien été créée.
+Nous avons la confirmation que l'image a bien été créée. Notons tout de même que
+l'image est stocké dans la régions où elle a été créée.
 
 ## TÂCHE 4: CRÉATION D'UN LOAD BALANCER
 
@@ -272,6 +273,8 @@ Amazon (ELB). [[[[[Détail flemme]]]]]
 ![Load balancer creation step-by-step](assets/images/04-load_balancer_creation_step_1.png)
 
 ![Load balancer creation step-by-step](assets/images/04-load_balancer_creation_step_2.png)
+
+Ici, nous spécifions le nom de notre load balancer, à savoir "franchini-Drupal".
 
 ![Load balancer creation step-by-step](assets/images/04-load_balancer_creation_step_3.png)
 
@@ -301,17 +304,44 @@ http://franchini-drupal-1520229052.eu-central-1.elb.amazonaws.com/drupal7/
 
 ## TÂCHE 5: LANCEMENT D'UNE SECONDE INSTANCE DEPUIS LA NOUVELLE IMAGE
 
-![AMI copy step-by-step](assets/images/05-ami_move_step_.png)
+Dans ce chapitre, nous allons générer une seconde instance de l'application,
+dans une zone différente, à partir de l'image créée précédement.
 
-![AMI copy step-by-step](assets/images/05-ami_move_step_.png)
+Premièrement nous constatons que nous pouvons pas, de base, générer une instance
+EC2 dans une région différente de celle où est situé notre AMI. Nous devons, de
+ce fait, copier l'image dans la région où nous souhaitons générer notre deuxième
+instance.
 
-![AMI copy step-by-step](assets/images/05-ami_move_step_.png)
+![AMI copy step-by-step](assets/images/05-ami_move_step_0.png)
 
-![AMI copy step-by-step](assets/images/05-ami_move_step_.png)
+Pour ce faire, il faut retourner dans le tableau de bord des AMIs, dans leur
+région d'origine. Ensuite, après avoir sélectionné l'image, dans le menu
+déroulant "Actions", il faut cliquer sur "Copy AMI".
 
-![AMI copy step-by-step](assets/images/05-ami_move_step_.png)
+![AMI copy step-by-step](assets/images/05-ami_move_step_1.png)
 
-![AMI copy step-by-step](assets/images/05-ami_move_step_.png)
+Alors s'ouvre une fenêtre pop-up nous demandant de spécifier la région de
+destination et ses caractéristiques. Nous choisisons de copier l'image dans
+la région de Tokyo.
+
+![AMI copy step-by-step](assets/images/05-ami_move_step_2.png)
+
+À présent, nous devons attendre quelques minutes pour ensuite constater la
+présence de la nouvelle image dans la région désirée.
+
+![AMI copy step-by-step](assets/images/05-ami_move_step_3.png)
+
+![AMI copy step-by-step](assets/images/05-ami_move_step_4.png)
+
+![Second instance creation step-by-step](assets/images/05-create_second_ec2_step_.png)
+
+![Second instance creation step-by-step](assets/images/05-create_second_ec2_step_.png)
+
+![Second instance creation step-by-step](assets/images/05-create_second_ec2_step_.png)
+
+![Second instance creation step-by-step](assets/images/05-create_second_ec2_step_.png)
+
+![Second instance creation step-by-step](assets/images/05-create_second_ec2_step_.png)
 
 ## TÂCHE 6: TEST DE L'APPLICATION DISTRIBUÉE
 
