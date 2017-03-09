@@ -353,8 +353,40 @@ l'application web. (Procédure non-détaillée)
 Dans ce chapitre, nous allons générer une seconde instance de l'application,
 dans une zone différente de la première, à partir de l'image créée précédement.
 
+Pour éviter une certaine redondance dans les explications, seules les étapes
+importantes sont détaillées.
+
+Premièrement, nous choisissons notre image personnalisée pour générer l'instance
+EC2. Son occurence se trouve dans le menu "My AMIs".
+
+![Second instance creation step-by-step](assets/images/05-second_ec2_creation_step_1.png)
+
+Maintenant, nous devons spécifier une zone différente de notre première instance
+EC2. Cette dernière se situe sur "eu-central-1b", de ce fait nous parametrons
+la seconde sur "eu-central-1a".
+
+![Second instance creation step-by-step](assets/images/05-second_ec2_creation_step_2.png)
+
+Nous constatons que cette deuxième instance a bien été générée. Nous nous
+rendons sur la page web de la seconde instance pour tester le bon déroulement de
+la procédure. Tout est ok.
+
+![Second instance creation step-by-step](assets/images/05-second_ec2_creation_step_3.png)
+
+![Second instance creation step-by-step](assets/images/05-second_ec2_creation_step_4.png)
+
+
+
+![Second instance association step-by-step](assets/images/05-associate_second_ec2_step_1.png)
+
+![Second instance association step-by-step](assets/images/05-associate_second_ec2_step_2.png)
+
 ## TÂCHE 6: TEST DE L'APPLICATION DISTRIBUÉE
 
 ## TÂCHE 7: LIBÉRATION DES RESSOURCES
 
 ## CONCLUSION
+
+## TODO
+
+Corriger screenshot - Highlights
