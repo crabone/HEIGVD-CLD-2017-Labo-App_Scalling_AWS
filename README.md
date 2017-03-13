@@ -521,6 +521,39 @@ générés par `apache2` pour chaque instance.
 
 ![no alt](assets/images/06-tail_1.png)
 
+Nous lançons une première fois la simulation avec 1 utilisateur qui effectue 10
+requêtes.
+
+![One user, ten requests](assets/images/06-monitoring_tail_1_10.png)
+
+Nous remarquons qu'il y a alternance entre les différents noeuds. Nous pensons
+que le répartisseur de charge utilise algorithme "round robin".
+
+Nous retentons l'expérience avec cette fois 10 utilisateurs qui effectuent 100
+requêtes.
+
+À priori, en regardant le rapport de simulation de `jmeter`, tout semble se
+dérouler correctement.
+
+![10 users, 100 requests](assets/images/06-monitoring_10_100-jmeter.png)
+
+En regardant le tableau de bord d'Amazon, on remarque qu'une bonne partie des
+requêtes a été redirigé sur la deuxième instance. La théorie du "round robin"
+semble être anéantie.
+
+![10 users, 100 requests](assets/images/06-monitoring_10_100.png)
+
+Retentons la simulation mais avec cette fois 100 utilisateurs effectuant 100
+requêtes.
+
+Nous commençons à voir des comportements inatendus. On voit apparaître d'une
+des mots clef "Internal Dummy Connection", après lecture du [wiki](https://wiki.apache.org/httpd/InternalDummyConnection)
+on peut les ignorer.
+
+![100 users, 100 requests](assets/images/06-monitoring_100_100.png)
+
+Nous voyons aussi apparaître des erreures 500 (Internal Server Error).
+Apparement le serveur à du mal à traiter un nombre important de requête.
 
 ```
 ubuntu@ip-172-31-8-194:~$ sudo grep -m5 -nr 500 /var/log/apache2/access.log
@@ -530,6 +563,17 @@ ubuntu@ip-172-31-8-194:~$ sudo grep -m5 -nr 500 /var/log/apache2/access.log
 4706:172.31.9.229 - - [13/Mar/2017:12:18:39 +0000] "GET /drupal7/ HTTP/1.1" 500 4678 "-" "Apache-HttpClient/4.5.2 (Java/1.8.0_121)"
 4708:172.31.9.229 - - [13/Mar/2017:12:18:39 +0000] "GET /drupal7/ HTTP/1.1" 500 4678 "-" "Apache-HttpClient/4.5.2 (Java/1.8.0_121)"
 ```
+
+Pour souligner ce phénomène on peut regarder le rapport de simulation de
+`jmeter`. Il nous indique un taux d'environ 1% d'erreur.
+
+![100 users, 100 requests](assets/images/06-monitoring_100_100-jmeter.png)
+
+![100 users, 100 requests](assets/images/06-monitoring_100_100_aws.png)
+
+Il nous ait demandé d'effectuer un `nslookup` après une forte simulation.
+Cependant, nous constatons que le retour de la commande n'est pas très différents
+de la première fois.
 
 ```
 $ nslookup franchini-drupal-1520229052.eu-central-1.elb.amazonaws.com
@@ -543,7 +587,22 @@ Name:	franchini-drupal-1520229052.eu-central-1.elb.amazonaws.com
 Address: 35.157.117.90
 ```
 
+Nous pensons que les erreurs du serveur `apache2`, est dû au type de l'instance
+choisis `t2.medium`. Ce type d'instance n'est pas fait pour résister à une
+forte charge.
+
+Nous pensons que la simulation est trop simpliste pour évaluer le comportement
+du load balancer. Nous ne prennons pas en compte, par exemple, les cookies.
+Ici, nous testons plutôt la charge que peut supporter une instance, plutôt que
+le comportement effectif du répartisseur de charge.
+
+Pour une simulation plus réaliste, nous définirions d'une part un cahier des
+charges pour tester les différents aspects comportementales.
+
 ## TÂCHE 7: LIBÉRATION DES RESSOURCES
+
+Comme nous avons terminer le laboratoire, nous libérons les ressources utilisées
+pour éviter d'être facturé bêtement. **(Procédure non-détaillée)**
 
 ## CONCLUSION
 
