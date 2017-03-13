@@ -15,10 +15,8 @@ plusieurs instances EC2 et d'un repartisseur de charge (Load Balancer).
 ## TÂCHE 1: CRÉATION D'UNE BASE DE DONNÉE RDS
 
 Dans ce chapitre, nous allons préparer le terrain pour utiliser le service de
-base de données relationnelles proposé par Amazon (RDS). Pour ce faire nous
+base de données relationnelles proposé par Amazon (RDS). Pour ce faire, nous
 allons créer une instance spécifique à l'utilisation de base de données.
-
-[[[[[[[[Détaillé les avantages de cette approche.]]]]]]]]
 
 Premièrement, nous nous rendons sur le tableau de bord permettant de gérer les
 instances RDS. Pour ce faire, dans la page d'accueil, il faut cliquer sur le
@@ -63,9 +61,9 @@ type, son identifiant et les crédentials liés à `MySQL`.
 
 ![RDS creation step-by-step](assets/images/01-rds_creation_step_7.png)
 
-À cet instant, on choisi son "Security Group" et désactivons les sauvegardes
-automatiques. La désactivation des sauvegardes automatique se procède en
-spécifiant une fréquence de sauvegarde nulle.
+À cet instant, on choisi son "Security Group" (franchini-Drupal-DB) et
+désactivons les sauvegardes automatiques. La désactivation des sauvegardes
+automatiques se procède en spécifiant une fréquence de sauvegarde nulle.
 
 ![RDS creation step-by-step](assets/images/01-rds_creation_step_8.png)
 
@@ -81,7 +79,8 @@ Nous apprenons que l'endpoint est identifié par le nom de domaine publique
 
 Pour tester le bon déroulement de la manipulation nous tentons d'accèder à
 cette nouvelle base de données, depuis l'instance contenant `drupal7` via le
-client `mysql`.
+client `mysql`. Pour ce faire nous passons en argument, l'endpoint et les
+crédentials du compte `root`, précédément définis.
 
 ```
 ubuntu@ip-172-31-3-176:~$ mysql --host=franchini-drupal.cm4237cqo8tv.eu-central-1.rds.amazonaws.com --user=root --password=<SECRET>
@@ -103,7 +102,31 @@ Bye
 
 Le client ne nous retourne pas d'erreur, tout est ok.
 
-[[[[[[[[[[[[[[[Répondre aux questions posés]]]]]]]]]]]]]]]
+Maintenant nous nous interessons aux tarifs en vigueure par Amazon. Sur le [site
+officiel](https://aws.amazon.com/rds/pricing/), nous apprenons qu'une instance
+`db.t2.micro` est facturée 0.020$ par heure.
+
+![RDS pricing](assets/images/01-rds_pricing.png)
+
+Avec l'utilitaire [Simple Monthly Calculator](http://calculator.s3.amazonaws.com/index.html),
+nous apprenons que pour un mois, ce service nous couterait 15.33$
+
+![RDS pricing](assets/images/01-rds_pricing_2.png)
+
+Si nous substituons ce service par l'utilisation d'une instance EC2 classique,
+contenant une instance de `MySQL`. Nous payerons pour un mois, 10.25$
+
+![RDS pricing](assets/images/01-rds_pricing_2.png)
+
+Bien qu'une instance EC2 soit moins cher, l'installation et la maintenance de
+la base de donnée nous ait imputé. De ce fait, dans une optique "entreprise",
+ces opérations représentent un coût non-négligeable (embauche d'un
+administrateur compétent).
+
+De plus, par souci de sécurité, si nous avons une utilisation "classique" d'une
+base de données, nous recommandons l'utilisation du service RDS. En effet, les
+temps de réaction d'Amazon pour patcher une base de donnée est plus rapide que
+si nous avons, nous même à le faire.
 
 ## TÂCHE 2: CONFIGURATION DE DRUPAL POUR L'UTILISATION D'UNE BASE DE DONNÉE RDS
 
@@ -124,16 +147,16 @@ ubuntu@ip-172-31-3-176:~$ sudo /etc/init.d/apache2 stop
 Pour reconfigurer `drupal7` nous utilisons l'utilitaire `dpkg-reconfigure`.
 `dpkg` est un système de gestion de paquets de bas niveau, utilisé dans les
 distributions dérivant de Debian. Par analogie, nous citons `rpm`, utilitaire
-similaire pour les distributions dérivant de Red Hat. Un utilisateur
-grand-publique utilise généralement `apt`, qui est une surcouche de `dpkg`, pour
-gérer ses paquets.
+similaire pour les distributions dérivant de Red Hat. Un utilisateur lambda
+utilise généralement `apt`, qui est une surcouche de `dpkg`, pour gérer ses
+paquets.
 
 ```
 ubuntu@ip-172-31-3-176:~$ sudo dpkg-reconfigure drupal7
 ```
 
 À présent, nous sommes invité à reconfigurer `drupal7` à l'aide d'une interface
-graphique minimale.
+graphique minimale (de type `ncurse` probablement).
 
 Premièrement, on nous demande si nous voulons réinstaller la base de donnée.
 Nous confirmons ce choix, étant donné que c'est notre intention première.
@@ -165,17 +188,20 @@ Nous spécifions le port d'accès, à savoir le port 3306.
 
 ![Drupal 7 database reconfiguration step-by-step](assets/images/02-drupal7_reconfigure_step_7.png)
 
-Maintenant, nous créons un nouvel utilisateur qui va gérer les tables liés à
-`drupal7`.
+Maintenant, nous définissons quel utilisateur va gérer les tables liés à la
+base de données propre à `drupal7`. Attention tout de même, cet utilisateur
+n'est pas créé par cet utilitaire, nous préparons juste le cms. Il faudra par
+la suite créer effectivement cet utilisateur dans la base de donnée et lui
+accorder les droits appropriés.
 
 ![Drupal 7 database reconfiguration step-by-step](assets/images/02-drupal7_reconfigure_step_8.png)
 
-Pour terminer nous saisissons le nom de la base de données à créer pour
-`drupal7`.
+Pour terminer nous saisissons le nom de la base de données qui contiendra les
+données du CMS.
 
 ![Drupal 7 database reconfiguration step-by-step](assets/images/02-drupal7_reconfigure_step_9.png)
 
-[[[[[[[[[[[[[Détaillé cette partie après avoir posé quelques questions au prof]]]]]]]]]]]]]
+Nous affichons le fichier de configuration, nouvellement généré.
 
 ```
 ubuntu@ip-172-31-8-194:~$ sudo cat /etc/drupal/7/sites/default/dbconfig.php
@@ -202,6 +228,11 @@ $databases['default']['default'] = array(
 
 ?>
 ```
+
+À présent, comme nous avons précédement spécifier un utilisateur (autre que
+`root`) pour administrer la base de données, nous devons le créer effectivement.
+
+Pour ce faire nous executons les instructions SQL fournis dans le devoir.
 
 ```
 ubuntu@ip-172-31-3-176:~$ mysql --host=franchini-drupal.cm4237cqo8tv.eu-central-1.rds.amazonaws.com --user=root --password=<SECRET>
@@ -230,19 +261,35 @@ mysql> quit
 Bye
 ```
 
+Nous n'avons pas eu d'erreur, nous pouvons continuer la procédure.
+
 ### MIGRATION DE LA BASE DE DONNÉES
+
+Maintenant, nous migrons le contenu de la base de donnée locale, qui a été
+utilisée jusqu'à maintenant sur l'instance RDS distante.
 
 ```
 ubuntu@ip-172-31-3-176:~$ mysqldump --add-drop-table --user=drupal7 --password=<SECRET_DRUPAL7> drupal7 |
   mysql --host=franchini-drupal.cm4237cqo8tv.eu-central-1.rds.amazonaws.com --user=drupal7 --password=<SECRET_DRUPAL7> drupal7
 ```
 
+À présent, nous avons terminer notre migration. De ce fait, nous relançons le
+serveur `apache2`.
+
+```
+$ sudo /etc/init.d/apache2 start
+```
+
+Nous nous rendons sur la page et constatons que tout fonctionne correctement.
+
 ## TÂCHE 3: CRÉATION D'UNE IMAGE VIRTUELLE PERSONNALISÉE
 
-Dans ce chapitre, nous allons créer une image virtuelle personnalisée basée sur
-l'instance EC2 contenant `drupal7`. Cette étape est nécessaire pour la
+Dans ce chapitre, nous allons créer une **image** virtuelle personnalisée basée
+sur l'instance EC2 contenant `drupal7`. Cette étape est nécessaire pour la
 redondance de l'application. Ainsi nous pourrons déployer plusieurs instances de
 l'application, dans différentes zones/régions proposées par Amazon.
+
+Dans la terminologie d'Amazon, une image virtuelle se nomme: AMI.
 
 Premièrement, il faut se rendre dans le tableau de bord permettant la gestion
 des instances EC2. Après avoir sélectionné l'instance contenant l'application
@@ -262,7 +309,7 @@ Nous reçevons la confirmation que le processus de création de l'image est lanc
 ![Custom AMI creation step-by-step](assets/images/03-image_creation_step_3.png)
 
 Pour voir si l'image a bien été créée, nous nous rendons dans le tableau de bord
-approprié. Pour ce faire il faut se rendre dans le sous-menu "AMIs" de la
+approprié. Pour ce faire, il faut se rendre dans le sous-menu "AMIs" de la
 catégorie "Images".
 
 ![Custom AMI creation step-by-step](assets/images/03-image_creation_step_4.png)
@@ -381,12 +428,24 @@ la procédure. Tout est ok.
 
 ![Second instance association step-by-step](assets/images/05-associate_second_ec2_step_2.png)
 
+À présent, nous nous interessons au coup total de l'infrastructure. Pour ce
+faire, nous utilisons l'utilitaire [Simple Monthly Calculator](http://calculator.s3.amazonaws.com/index.html).
+
+**Note:** Nous omettons volontairement le prix de l'Elastic IP, étant donnée la
+présence du répartisseur de charge.
+
+![infrastructure pricing](assets/images/05-infra_pricing.png)
+
+Nous constatons que notre infrastructure couterait 116.35$ par mois, soit
+1396.2$ !
+
 ## TÂCHE 6: TEST DE L'APPLICATION DISTRIBUÉE
 
 ## TÂCHE 7: LIBÉRATION DES RESSOURCES
 
 ## CONCLUSION
 
-## TODO
-
-Corriger screenshot - Highlights
+Nous avons eu beaucoup de plaisir à découvrir les services web d'Amazon. Nous
+constatons avec stupeur, le prix de l'infrastructure sur le long-terme. Si nous
+avons à reproduire une infrastructure similaire, nous utiliserons les outils
+en ligne de commande pour la déployer.
