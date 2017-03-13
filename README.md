@@ -447,7 +447,7 @@ Nous vérifions que l'instance à bien été associée.
 
 Pas de problèmes à l'horizon.
 
-Au final nous obtenus une infrastructure pouvant être shématiser par un
+Au final, nous obtenons une infrastructure pouvant être shématiser par un
 diagramme.
 
 ![Infrastructure](assets/images/05-infra.png)
@@ -458,12 +458,90 @@ faire, nous utilisons l'utilitaire [Simple Monthly Calculator](http://calculator
 **Note:** Nous omettons volontairement le prix de l'Elastic IP, étant donnée la
 présence du répartisseur de charge.
 
-![infrastructure pricing](assets/images/05-infra_pricing.png)
+![infrastructure pricing](assets/imaes/05-infra_pricing.png)
 
 Nous constatons que notre infrastructure couterait 116.35$ par mois, soit
-1396.2$ !
+1396.2$ à l'année !
 
 ## TÂCHE 6: TEST DE L'APPLICATION DISTRIBUÉE
+
+Dans ce chapitre, nous allons tester notre application distribuée. Nous voulous
+connaître le comportement du répartisseur ainsi que le comportement des
+instances face à charge élevée.
+
+Premièrement nous activons la surveillance avancée de nos instances EC2 tel que
+décrit dans l'énoncé. **(captures d'écran insdisponibles)**
+
+Pour une meilleure lisibilité et surtout par curiosité nous créons un tableau de
+bord. Pour ce faire, dans la page d'accueil il faut se rendre dans le sous-menu
+"CloudWatch" de la catégorie "Managment Tools".
+
+Ensuite, nous sommes invités à créer un nouveau tableau de bord.
+
+![Dashboard creation step-by-step](assets/images/06-monitoring_step_1.png)
+
+Nous saisissons le nom du nouveau tableau de bord.
+
+![Dashboard creation step-by-step](assets/images/06-monitoring_step_2.png)
+
+Une fois créer, nous ajustons la période de surveillance à 1 minute.
+
+![Dashboard creation step-by-step](assets/images/06-monitoring_step_3.png)
+
+Nous ajoutons ensuite une nouvelle métrique. Nous choisissons de voir le nombre
+de paquets entrants dans chacune des instances.
+
+![Dashboard creation step-by-step](assets/images/06-monitoring_step_4.png)
+
+Par lisibilité, nous saisissons le nom plus parlant pour les instances.
+
+![Dashboard creation step-by-step](assets/images/06-monitoring_step_4b.png)
+
+Ensuite, toujours par souci de lisibilité nous restreignons la période
+d'évaluation à une heure.
+
+![Dashboard creation step-by-step](assets/images/06-monitoring_step_5.png)
+
+Maintenant nous configurons un nouveau plan de test. Pour ce faire on utilise le
+logiciel `jmeter`.
+
+Premièrement nous définissons un "Thread Group", c'est à dire un groupe
+d'utilisateur.
+
+![JMeter configuration step-by-step](assets/images/06-jmeter_config_1.png)
+
+Ensuite, nous définissons l'accès aux instance. Nous spécifions l'adresse du
+répartisseur de charge, ainsi que le chemin d'accès `/drupal7/` par la méthode
+GET.
+
+![JMeter configuration step-by-step](assets/images/06-jmeter_config_1.png)
+
+Nous ouvrons en parallèle, deux terminaux avec une vue en temps réel des logs
+générés par `apache2` pour chaque instance.
+
+![no alt](assets/images/06-tail_1.png)
+
+
+```
+ubuntu@ip-172-31-8-194:~$ sudo grep -m5 -nr 500 /var/log/apache2/access.log
+4680:172.31.9.229 - - [13/Mar/2017:12:18:38 +0000] "GET /drupal7/ HTTP/1.1" 500 4678 "-" "Apache-HttpClient/4.5.2 (Java/1.8.0_121)"
+4701:172.31.9.229 - - [13/Mar/2017:12:18:39 +0000] "GET /drupal7/ HTTP/1.1" 500 4678 "-" "Apache-HttpClient/4.5.2 (Java/1.8.0_121)"
+4703:172.31.9.229 - - [13/Mar/2017:12:18:39 +0000] "GET /drupal7/ HTTP/1.1" 500 4678 "-" "Apache-HttpClient/4.5.2 (Java/1.8.0_121)"
+4706:172.31.9.229 - - [13/Mar/2017:12:18:39 +0000] "GET /drupal7/ HTTP/1.1" 500 4678 "-" "Apache-HttpClient/4.5.2 (Java/1.8.0_121)"
+4708:172.31.9.229 - - [13/Mar/2017:12:18:39 +0000] "GET /drupal7/ HTTP/1.1" 500 4678 "-" "Apache-HttpClient/4.5.2 (Java/1.8.0_121)"
+```
+
+```
+$ nslookup franchini-drupal-1520229052.eu-central-1.elb.amazonaws.com
+Server:		130.125.1.111
+Address:	130.125.1.111#53
+
+Non-authoritative answer:
+Name:	franchini-drupal-1520229052.eu-central-1.elb.amazonaws.com
+Address: 35.157.15.34
+Name:	franchini-drupal-1520229052.eu-central-1.elb.amazonaws.com
+Address: 35.157.117.90
+```
 
 ## TÂCHE 7: LIBÉRATION DES RESSOURCES
 
