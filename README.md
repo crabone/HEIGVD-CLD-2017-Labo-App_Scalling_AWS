@@ -12,6 +12,17 @@ plusieurs instances EC2 et d'un repartisseur de charge (Load Balancer).
 * FRANCHINI Fabien
 * DONGMO NGOUMNAÏ Annie Sandra
 
+## TABLE DES MATIÈRES
+
+1. [Tâche 1: Création d'une base de donnée RDS](#t%C3%82che-1-cr%C3%89ation-dune-base-de-donn%C3%89e-rds)
+2. [Tâche 2: Configuration de Drupal pour l'utilisation d'une base de donnée RDS](#t%C3%82che-2-configuration-de-drupal-pour-lutilisation-dune-base-de-donn%C3%89e-rds)
+3. [Tâche 3: Création d'une image virtuelle personnalisée](#t%C3%82che-3-cr%C3%89ation-dune-image-virtuelle-personnalis%C3%89e)
+4. [Tâche 4: Création d'un load balancer](#t%C3%82che-4-cr%C3%89ation-dun-load-balancer)
+5. [Tâche 5: Lancement d'une seconde instance depuis la nouvelle image](#t%C3%82che-5-lancement-dune-seconde-instance-depuis-la-nouvelle-image)
+6. [Tâche 6: Test de l'application distribuée](#t%C3%82che-6-test-de-lapplication-distribu%C3%89e)
+7. [Tâche 7: Libération des ressources](#t%C3%82che-7-lib%C3%89ration-des-ressources)
+8. [Conclusion](#conclusion)
+
 ## TÂCHE 1: CRÉATION D'UNE BASE DE DONNÉE RDS
 
 Dans ce chapitre, nous allons préparer le terrain pour utiliser le service de
@@ -458,7 +469,7 @@ faire, nous utilisons l'utilitaire [Simple Monthly Calculator](http://calculator
 **Note:** Nous omettons volontairement le prix de l'Elastic IP, étant donnée la
 présence du répartisseur de charge.
 
-![infrastructure pricing](assets/imaes/05-infra_pricing.png)
+![infrastructure pricing](assets/images/05-infra_pricing.png)
 
 Nous constatons que notre infrastructure couterait 116.35$ par mois, soit
 1396.2$ à l'année !
