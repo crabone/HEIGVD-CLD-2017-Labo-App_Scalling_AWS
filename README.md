@@ -109,7 +109,10 @@ officiel](https://aws.amazon.com/rds/pricing/), nous apprenons qu'une instance
 ![RDS pricing](assets/images/01-rds_pricing.png)
 
 Avec l'utilitaire [Simple Monthly Calculator](http://calculator.s3.amazonaws.com/index.html),
-nous apprenons que pour un mois, ce service nous couterait 15.33$
+nous apprenons que pour un mois, ce service nous couterait 15.33$.
+
+**Note:** Il faut impérativement spécifier la région où sont généré les
+instances. Les tarifs diffèrent d'une région à l'autre.
 
 ![RDS pricing](assets/images/01-rds_pricing_2.png)
 
@@ -123,10 +126,9 @@ la base de donnée nous ait imputé. De ce fait, dans une optique "entreprise",
 ces opérations représentent un coût non-négligeable (embauche d'un
 administrateur compétent).
 
-De plus, par souci de sécurité, si nous avons une utilisation "classique" d'une
-base de données, nous recommandons l'utilisation du service RDS. En effet, les
-temps de réaction d'Amazon pour patcher une base de donnée est plus rapide que
-si nous avons, nous même à le faire.
+De plus, par souci de sécurité, nous recommandons l'utilisation du service RDS.
+En effet, les temps de réaction d'Amazon pour patcher une base de donnée sont
+plus rapide que si nous avons eu, nous même à le faire.
 
 ## TÂCHE 2: CONFIGURATION DE DRUPAL POUR L'UTILISATION D'UNE BASE DE DONNÉE RDS
 
@@ -322,7 +324,9 @@ faudra impérativement copié l'image dans celle-çi.
 ## TÂCHE 4: CRÉATION D'UN LOAD BALANCER
 
 Dans ce chapitre, nous allons créer un répartisseur de charge proposé par
-Amazon (ELB). [[[[[Détail flemme]]]]]
+Amazon (ELB). Pour plus d'information concernant son utilité, un [précédent
+laboratoire](https://github.com/crabone/Teaching-HEIGVD-AIT-2015-Labo-02)
+explique le fonctionnement global d'un répartisseur de charge.
 
 ![Load balancer creation step-by-step](assets/images/04-load_balancer_creation_step_1.png)
 
@@ -345,6 +349,9 @@ envoit périodiquement des requêtes à ses noeuds afin de savoir si ils sont
 toujours "en vie". Nous considérons qu'un noeud est "en vie" si il répond, avec
 succès, 2 "Health Check" à 10 secondes d'interval. De plus, nous spécifions,
 arbitrairement le chemin d'accès du "Check" à `/drupal7/`.
+
+**Note:** Nous aurions très bien pu faire pointer le "Health Check" à la racine
+du serveur.
 
 ![Load balancer creation step-by-step](assets/images/04-load_balancer_creation_step_5.png)
 
@@ -422,11 +429,28 @@ la procédure. Tout est ok.
 
 ![Second instance creation step-by-step](assets/images/05-second_ec2_creation_step_4.png)
 
-
+À présent, nous devons connecter cette seconde instance au repartisseur de
+charge. Pour ce faire nous nous rendons dans le tableau de bord approprié.
+Ensuite, dans le menu déroulant "Actions", il faut se rendre dans le menu
+"Edit instances".
 
 ![Second instance association step-by-step](assets/images/05-associate_second_ec2_step_1.png)
 
+Nous selectionnons parmis toutes les instances disponible, celle précédement
+généré.
+
 ![Second instance association step-by-step](assets/images/05-associate_second_ec2_step_2.png)
+
+Nous vérifions que l'instance à bien été associée.
+
+![Second instance association step-by-step](assets/images/05-associate_second_ec2_step_3.png)
+
+Pas de problèmes à l'horizon.
+
+Au final nous obtenus une infrastructure pouvant être shématiser par un
+diagramme.
+
+![Infrastructure](assets/images/05-infra.png)
 
 À présent, nous nous interessons au coup total de l'infrastructure. Pour ce
 faire, nous utilisons l'utilitaire [Simple Monthly Calculator](http://calculator.s3.amazonaws.com/index.html).
