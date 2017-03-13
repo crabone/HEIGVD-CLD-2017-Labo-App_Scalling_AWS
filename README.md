@@ -463,6 +463,10 @@ diagramme.
 
 ![Infrastructure](assets/images/05-infra.png)
 
+**Note:** Nous aurions pu créer un "Security Group" propre au répartisseur de
+charge, acceptant uniquement HTTP. Nous ne l'avons pas fait par souci de
+rapidité.
+
 À présent, nous nous interessons au coup total de l'infrastructure. Pour ce
 faire, nous utilisons l'utilitaire [Simple Monthly Calculator](http://calculator.s3.amazonaws.com/index.html).
 
