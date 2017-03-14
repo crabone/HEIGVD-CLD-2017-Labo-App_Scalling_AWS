@@ -607,7 +607,8 @@ choisis `t2.medium`. Ce type d'instance n'est pas fait pour résister à une
 forte charge.
 
 Nous pensons que la simulation est trop simpliste pour évaluer le comportement
-du load balancer. Nous ne prennons pas en compte, par exemple, les cookies.
+du load balancer. Nous ne prennons pas en compte, par exemple, les cookies ou si
+tout d'un coup un noeud ne répond plus, ou qu'il y ai plus de 2 noeuds.
 Ici, nous testons plutôt la charge que peut supporter une instance, plutôt que
 le comportement effectif du répartisseur de charge.
 
