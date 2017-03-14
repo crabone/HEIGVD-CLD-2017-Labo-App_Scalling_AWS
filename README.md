@@ -130,7 +130,7 @@ instances. Les tarifs diffèrent d'une région à l'autre.
 Si nous substituons ce service par l'utilisation d'une instance EC2 classique,
 contenant une instance de `MySQL`. Nous payerons pour un mois, 10.25$
 
-![RDS pricing](assets/images/01-rds_pricing_2.png)
+![RDS pricing](assets/images/01-rds_pricing_3.png)
 
 Bien qu'une instance EC2 soit moins cher, l'installation et la maintenance de
 la base de donnée nous ait imputé. De ce fait, dans une optique "entreprise",
